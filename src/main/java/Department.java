@@ -1,5 +1,8 @@
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import java.util.List;
 
 /**
  * Created by mtumilowicz on 2018-05-02.
@@ -8,9 +11,41 @@ import javax.persistence.Id;
 public class Department {
     @Id
     private int id;
+    
+    private String name;
+    
+    @ManyToOne
+    private Bookstore bookstore;
+    
+    @OneToMany
+    private List<Book> books;
 
     public int getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Bookstore getBookstore() {
+        return bookstore;
+    }
+
+    public void setBookstore(Bookstore bookstore) {
+        this.bookstore = bookstore;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 
     @Override

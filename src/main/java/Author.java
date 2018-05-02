@@ -1,5 +1,5 @@
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by mtumilowicz on 2018-05-02.
@@ -8,9 +8,20 @@ import javax.persistence.Id;
 public class Author {
     @Id
     private int id;
+    
+    @ManyToMany(mappedBy = "authors")
+    private List<Book> books;
 
     public int getId() {
         return id;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 
     @Override

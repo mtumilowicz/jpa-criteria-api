@@ -35,8 +35,8 @@ create table AUTHOR (
 );
 
 create table BOOK_AUTHOR (
-    BOOK_ID int not null,
-    foreign key (BOOK_ID) references BOOK(ID),
-    AUTHOR_ID int not null,
-    foreign key (AUTHOR_ID) references AUTHOR(ID),
+    BOOKS_ID int not null,
+    foreign key (BOOKS_ID) references BOOK(ID),
+    AUTHORS_ID int not null,
+    foreign key (AUTHORS_ID) references AUTHOR(ID),
 );

@@ -22,5 +22,5 @@ VALUES ('J. K. Rowling'),
 ('Carpenter Jeff'), 
 ('Hewitt Eben');
 
-INSERT INTO BOOK_AUTHOR (BOOK_ID, AUTHOR_ID)
+INSERT INTO BOOK_AUTHOR (BOOKS_ID, AUTHORS_ID)
 VALUES (1,1), (2,2), (3,3), (3,4);
