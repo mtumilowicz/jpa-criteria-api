@@ -18,7 +18,7 @@ public class Bookstore {
     private Address address;
     
     @OneToMany(mappedBy = "bookstore")
-    private List<Department> departments;
+    private List<Book> books;
 
     public int getId() {
         return id;
@@ -40,12 +40,12 @@ public class Bookstore {
         this.address = address;
     }
 
-    public List<Department> getDepartments() {
-        return departments;
+    public List<Book> getBooks() {
+        return books;
     }
 
-    public void setDepartments(List<Department> departments) {
-        this.departments = departments;
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 
     @Override

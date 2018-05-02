@@ -11,8 +11,13 @@ public class Book {
     
     private String name;
     
+    private int price;
+    
+    @Enumerated(EnumType.STRING)
+    private WritingGenre genre;
+    
     @ManyToOne
-    private Department department;
+    private Bookstore bookstore;
 
     @ManyToMany
     private List<Author> authors;
@@ -29,20 +34,36 @@ public class Book {
         this.name = name;
     }
 
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
     public List<Author> getAuthors() {
         return authors;
     }
 
     public void setAuthors(List<Author> authors) {
         this.authors = authors;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public WritingGenre getGenre() {
+        return genre;
+    }
+
+    public void setGenre(WritingGenre genre) {
+        this.genre = genre;
+    }
+
+    public Bookstore getBookstore() {
+        return bookstore;
+    }
+
+    public void setBookstore(Bookstore bookstore) {
+        this.bookstore = bookstore;
     }
 
     @Override

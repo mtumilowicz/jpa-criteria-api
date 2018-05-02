@@ -15,19 +15,17 @@ create table ADDRESS (
 
 alter table BOOKSTORE add foreign key (ADDRESS_ID) references ADDRESS(ID);
 
-create table DEPARTMENT (
+create table BOOK (
     ID int auto_increment primary key,
-    NAME varchar(100) not null unique,
+    NAME varchar(100) not null,
+    PRICE int not null,
+    GENRE varchar(100) not null,
     BOOKSTORE_ID INT,
     foreign key (BOOKSTORE_ID) references BOOKSTORE(ID),
 );
 
-create table BOOK (
-    ID int auto_increment primary key,
-    NAME varchar(100) not null,
-    DEPARTMENT_ID INT,
-    foreign key (DEPARTMENT_ID) references DEPARTMENT(ID),
-);
+alter table BOOK
+add constraint GENRE CHECK (GENRE='SCIENCE' or GENRE='FANTASY');
 
 create table AUTHOR (
     ID int auto_increment primary key,

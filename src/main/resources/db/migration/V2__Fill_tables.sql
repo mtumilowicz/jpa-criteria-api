@@ -8,13 +8,10 @@ UPDATE BOOKSTORE
 SET ADDRESS_ID = 1
 WHERE ID = 1;
 
-INSERT INTO DEPARTMENT (NAME, BOOKSTORE_ID)
-VALUES ('Fantasy', 1), ('Science', 1);
-
-INSERT INTO BOOK (NAME, DEPARTMENT_ID)
-VALUES ('Harry Potter', 1),
-  ('Lord of the rings', 1),
-  ('Cassandra', 2);
+INSERT INTO BOOK (NAME, PRICE, GENRE, BOOKSTORE_ID)
+VALUES ('Harry Potter', 10, 'FANTASY', 1),
+  ('Lord of the rings', 5, 'FANTASY', 1),
+  ('Cassandra', 20, 'SCIENCE', 1);
 
 INSERT INTO AUTHOR (NAME)
 VALUES ('J. K. Rowling'), 
