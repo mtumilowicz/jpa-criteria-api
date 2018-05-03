@@ -185,4 +185,21 @@ public class Test {
         
         return entityManager.createQuery(cc_query).getResultList();
     }
+    
+    public static List<Bookstore> getBookstoresFromNewYork() {
+        EntityManager entityManager = emf.createEntityManager();
+
+        TypedQuery<Bookstore> query2 = entityManager.createQuery("SELECT bookstore " +
+                "FROM Bookstore bookstore " +
+                "WHERE bookstore.address.city = 'New York'", Bookstore.class);
+
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> query_root = cc_query.from(Bookstore.class);
+        cc_query.select(query_root);
+        cc_query.where(cb.equal(query_root.get("address").get("city"), "New York"));
+        
+        return entityManager.createQuery(cc_query).getResultList();
+    }
 }
