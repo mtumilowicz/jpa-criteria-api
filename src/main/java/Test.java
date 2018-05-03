@@ -1,12 +1,10 @@
 import org.flywaydb.core.Flyway;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Tuple;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.util.List;
 
 /**
@@ -36,10 +34,10 @@ public class Test {
         return entityManager.createQuery(query).getResultList();
     }
 
-    public static List<String> getAllBookNames() {
+    public static List<String> getAllBookTitles() {
         EntityManager entityManager = emf.createEntityManager();
 
-        entityManager.createQuery("SELECT b.name FROM Book b", Book.class);
+        entityManager.createQuery("SELECT b.title FROM Book b", Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
@@ -119,5 +117,72 @@ public class Test {
         query.having(cb.gt(cb.count(query_root.get("genre")), 1));
         
         return entityManager.createQuery(query).getResultList();
+    }
+    
+    public static List<Book> getBooksByTitle(String title) {
+        EntityManager entityManager = emf.createEntityManager();
+
+        TypedQuery<Book> query1 = 
+                entityManager.createQuery("SELECT b FROM Book b WHERE b.title = :title", Book.class);
+
+        query1.setParameter("title", title);
+        
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Book> query = cb.createQuery(Book.class);
+        Root<Book> query_root = query.from(Book.class);
+        query.select(query_root);
+        query.where(cb.equal(
+                query_root.get("title"), 
+                cb.parameter(String.class, "title")));
+
+        return entityManager.createQuery(query)
+                .setParameter("title", title)
+                .getResultList();
+    }
+    
+    public static List<Bookstore> getBookstoresWithAtLeastOneBook() {
+        EntityManager entityManager = emf.createEntityManager();
+
+        TypedQuery<Bookstore> query_in = 
+                entityManager.createQuery("SELECT DISTINCT bookstore " +
+                        "FROM Bookstore bookstore, IN(bookstore.books) books", 
+                        // note that without alias 'books' in won't work (org.hibernate.hql.internal.ast.QuerySyntaxException)
+                        Bookstore.class);
+
+        TypedQuery<Bookstore> query_join =
+                entityManager.createQuery("SELECT DISTINCT bookstore " +
+                                "FROM Bookstore bookstore JOIN bookstore.books",
+                        Bookstore.class);
+
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bookstore> query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> query_root = query.from(Bookstore.class);
+        query_root.join("books"); 
+        query.select(query_root).distinct(true);
+        
+        return entityManager.createQuery(query).getResultList();
+    }
+    
+    public static List<Bookstore> getBookstoresWithMostExpensiveBook() {
+        EntityManager entityManager = emf.createEntityManager();
+
+        TypedQuery<Bookstore> query = entityManager.createQuery("SELECT book.bookstore " +
+                "FROM Book book " +
+                "WHERE book.price = (SELECT MAX(b.price) FROM Book b)", Bookstore.class);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Book> query_root = cc_query.from(Book.class);
+        query_root.join("bookstore");
+        cc_query.select(query_root.get("bookstore"));
+
+        Subquery<Integer> subquery = cc_query.subquery(Integer.class);
+        Root<Book> max_subquery_root = subquery.from(Book.class);
+        subquery.select(cb.max(max_subquery_root.get("price")));
+
+        cc_query.where(cb.equal(query_root.get("price"), subquery));
+        
+        return entityManager.createQuery(cc_query).getResultList();
     }
 }

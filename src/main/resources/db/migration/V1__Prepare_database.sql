@@ -17,7 +17,7 @@ alter table BOOKSTORE add foreign key (ADDRESS_ID) references ADDRESS(ID);
 
 create table BOOK (
     ID int auto_increment primary key,
-    NAME varchar(100) not null,
+    TITLE varchar(100) not null,
     PRICE int not null,
     GENRE varchar(100) not null,
     BOOKSTORE_ID INT,
