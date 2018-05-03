@@ -9,11 +9,21 @@ public class Author {
     @Id
     private int id;
     
+    private String name;
+    
     @ManyToMany(mappedBy = "authors")
     private List<Book> books;
 
     public int getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<Book> getBooks() {

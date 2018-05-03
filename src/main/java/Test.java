@@ -1,10 +1,7 @@
 import org.flywaydb.core.Flyway;
 
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 /**
@@ -202,4 +199,57 @@ public class Test {
         
         return entityManager.createQuery(cc_query).getResultList();
     }
+    
+    public static List<Bookstore> getBookstoresThatHaveTitle(String title) {
+        EntityManager entityManager = emf.createEntityManager();
+        TypedQuery<Bookstore> query2 = entityManager.createQuery(
+                "SELECT bookstore " +
+                "FROM Bookstore bookstore " +
+                        "WHERE EXISTS " +
+                        "(SELECT b " +
+                        "FROM bookstore.books b " +
+                        "WHERE b.title = :title)", Bookstore.class);
+        
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> query_root = cc_query.from(Bookstore.class);
+        cc_query.select(query_root);
+
+        Subquery<Book> subquery = cc_query.subquery(Book.class);
+        Root<Bookstore> subquery_root = subquery.correlate(query_root);
+        Join<Bookstore, Book> book = subquery_root.join("books");
+        subquery.select(book);
+        subquery.where(cb.equal(book.get("title"), cb.parameter(String.class, title)));
+        
+        cc_query.where(cb.exists(subquery));
+        
+        return entityManager.createQuery(cc_query).getResultList();
+    }
+    
+    public static List<Bookstore> getBookstoresThatHaveAtLeastOneBookWrittenBy(String author) {
+        EntityManager entityManager = emf.createEntityManager();
+        
+        TypedQuery<Bookstore> query2 = entityManager.createQuery(
+                "SELECT bookstore " +
+                        "FROM Bookstore bookstore JOIN bookstore.books book " +
+                        "WHERE EXISTS (SELECT ath FROM book.authors ath WHERE ath.name = :author)", 
+                Bookstore.class);
+
+        query2.setParameter("author", author);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bookstore> c = cb.createQuery(Bookstore.class);
+        Root<Bookstore> bookstore = c.from(Bookstore.class);
+        Join<Bookstore, Book> books = bookstore.join("books");
+        Subquery<Author> sq = c.subquery(Author.class);
+        Join<Bookstore, Book> sqBooks = sq.correlate(books);
+        Join<Book, Author> authors = sqBooks.join("authors");
+        sq.select(authors);
+        sq.where(cb.equal(authors.get("name"), cb.parameter(String.class, "author")));
+        c.select(bookstore)
+                .where(cb.exists(sq));
+    
+    return entityManager.createQuery(c).setParameter("author", author).getResultList();
+    }
+    
 }
