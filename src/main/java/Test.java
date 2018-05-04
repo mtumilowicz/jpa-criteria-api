@@ -1,7 +1,10 @@
+import com.google.common.base.Preconditions;
 import org.flywaydb.core.Flyway;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,6 +31,57 @@ public class Test {
         Root<Book> query_root = query.from(Book.class);
         query.select(query_root);
         
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    public static List<Book> getAllBooksOrderByTitle() {
+        EntityManager entityManager = emf.createEntityManager();
+
+        entityManager.createQuery("SELECT b FROM Book b ORDER BY b.title", Book.class);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Book> query = cb.createQuery(Book.class);
+        Root<Book> query_root = query.from(Book.class);
+        query.select(query_root);
+        query.orderBy(cb.asc(query_root.get("title")));
+        
+        return entityManager.createQuery(query).getResultList();
+    }
+    
+    public static List<Book> getBooksByTitleLike(String like) {
+        EntityManager entityManager = emf.createEntityManager();
+
+        TypedQuery<Book> query1 = entityManager.createQuery("SELECT b " +
+                "FROM Book b " +
+                "WHERE b.title LIKE :like", Book.class);
+        
+        query1.setParameter("like", like);
+
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Book> query = cb.createQuery(Book.class);
+        Root<Book> query_root = query.from(Book.class);
+        query.select(query_root);
+        query.where(cb.like(query_root.get("title"), like));
+
+        return entityManager.createQuery(query).getResultList();
+    }
+    
+    public static List<Book> getBooksWithPriceIn(Collection<Integer> prices) {
+        EntityManager entityManager = emf.createEntityManager();
+
+        TypedQuery<Book> query1 = 
+                entityManager.createQuery("SELECT b " +
+                        "FROM Book b " +
+                        "WHERE b.price IN :prices", Book.class);
+        query1.setParameter("prices", prices);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Book> query = cb.createQuery(Book.class);
+        Root<Book> query_root = query.from(Book.class);
+        query.select(query_root);
+        query.where(query_root.get("price").in(prices));
+
         return entityManager.createQuery(query).getResultList();
     }
 
@@ -250,6 +304,41 @@ public class Test {
                 .where(cb.exists(sq));
     
     return entityManager.createQuery(c).setParameter("author", author).getResultList();
+    }
+    
+    public static List<Book> getBooksWithFetchedAuthors() {
+        EntityManager entityManager = emf.createEntityManager();
+
+        entityManager.createQuery("SELECT b FROM Book b JOIN FETCH b.authors", Book.class);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Book> query = cb.createQuery(Book.class);
+        Root<Book> query_root = query.from(Book.class);
+        query_root.fetch("authors");
+        query.select(query_root);
+
+        List<Book> resultList = entityManager.createQuery(query).getResultList();
+        
+        Preconditions.checkState(resultList.stream().map(Book::getAuthors).allMatch(Hibernate::isInitialized), 
+                "Not all book.authors are fully initialized!");
+        
+        return resultList;
+    }
+    
+    public static List<BookstoreCountAVG> getBookstoresWithCountBooksAndPriceAverage() {
+        EntityManager entityManager = emf.createEntityManager();
+
+        entityManager.createQuery("SELECT new BookstoreCountAVG(b.bookstore, count(b), avg(b.price)) " +
+                "FROM Book b " +
+                "GROUP BY b.bookstore", BookstoreCountAVG.class);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BookstoreCountAVG> query = cb.createQuery(BookstoreCountAVG.class);
+        Root<Book> query_root = query.from(Book.class);
+        query.multiselect(query_root.get("bookstore"), cb.count(query_root), cb.avg(query_root.get("price")));
+        query.groupBy(query_root.get("bookstore"));
+    
+    return entityManager.createQuery(query).getResultList();
     }
     
 }
