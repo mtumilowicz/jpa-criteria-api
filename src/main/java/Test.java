@@ -66,6 +66,43 @@ public class Test {
 
         return entityManager.createQuery(query).getResultList();
     }
+
+    /**
+     * the easiest way:
+     * "SELECT DISTINCT b.bookstore " +
+     * "FROM Book b " +
+     * "WHERE b.title LIKE :title"
+     * 
+     * example below shows how to use subqueries in 'IN' clause
+     */
+    public static List<Bookstore> getBookstoresWithTitlesLike(String title) {
+        EntityManager entityManager = emf.createEntityManager();
+
+        TypedQuery<Bookstore> query1 = entityManager.createQuery("SELECT bookstore " +
+                "FROM Bookstore bookstore JOIN bookstore.books books " +
+                "WHERE books IN (" +
+                    "SELECT book " +
+                "FROM Book book " +
+                "WHERE book.title LIKE :title)", Bookstore.class);
+
+        query1.setParameter("title", title);
+
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bookstore> query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> query_root = query.from(Bookstore.class);
+        Join<Bookstore, Book> books = query_root.join("books");
+        query.select(query_root);
+
+        Subquery<Book> subquery = query.subquery(Book.class);
+        Root<Book> sq_root = subquery.from(Book.class);
+        subquery.select(sq_root);
+        subquery.where(cb.like(sq_root.get("title"), title));
+
+        query.where(cb.in(books).value(subquery));
+
+        return entityManager.createQuery(query).getResultList();
+    }
     
     public static List<Book> getBooksWithPriceIn(Collection<Integer> prices) {
         EntityManager entityManager = emf.createEntityManager();
@@ -88,7 +125,9 @@ public class Test {
     public static List<String> getAllBookTitles() {
         EntityManager entityManager = emf.createEntityManager();
 
-        entityManager.createQuery("SELECT b.title FROM Book b", Book.class);
+        entityManager.createQuery("SELECT b.title " +
+                "FROM Book b", 
+                Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
@@ -98,24 +137,30 @@ public class Test {
         return entityManager.createQuery(query).getResultList();
     }
 
-    public static List<Book> getBooksWithPriceMoreThan10() {
+    public static List<Book> getBooksWithPriceMoreThan(int value) {
         EntityManager entityManager = emf.createEntityManager();
 
-        entityManager.createQuery("SELECT b FROM Book b WHERE b.price > 10", Book.class);
+        entityManager.createQuery("SELECT b " +
+                "FROM Book b " +
+                "WHERE b.price > :value", Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> query = cb.createQuery(Book.class);
         Root<Book> query_root = query.from(Book.class);
         query.select(query_root.get("name"));
-        query.where(cb.gt(query_root.get("price"), 10));
+        query.where(cb.gt(query_root.get("price"), cb.parameter(Integer.class, "value")));
 
-        return entityManager.createQuery(query).getResultList();
+        return entityManager.createQuery(query)
+                .setParameter("value", value)
+                .getResultList();
     }
     
     public static List<Book> getBooksWithMoreThanOneAuthors() {
         EntityManager entityManager = emf.createEntityManager();
 
-        entityManager.createQuery("SELECT b FROM Book b WHERE size(b.authors) > 1", Book.class);
+        entityManager.createQuery("SELECT b " +
+                "FROM Book b " +
+                "WHERE size(b.authors) > 1", Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> query = cb.createQuery(Book.class);
@@ -129,7 +174,9 @@ public class Test {
     public static long countBooks() {
         EntityManager entityManager = emf.createEntityManager();
 
-        entityManager.createQuery("SELECT count(b) FROM Book b", Book.class);
+        entityManager.createQuery("SELECT count(b) " +
+                "FROM Book b", 
+                Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
@@ -142,7 +189,11 @@ public class Test {
     public static List<Tuple> countBooksByGenre() {
         EntityManager entityManager = emf.createEntityManager();
 
-        entityManager.createQuery("SELECT b.genre, count(b) FROM Book b GROUP BY b.genre", Book.class);
+        TypedQuery<Tuple> query1 = 
+                entityManager.createQuery("SELECT " +
+                        "b.genre AS bookGenre, count(b) AS bookCount " +
+                        "FROM Book b " +
+                        "GROUP BY b.genre", Tuple.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
@@ -158,7 +209,10 @@ public class Test {
     public static List<WritingGenre> getGenresThatHaveMoreThanOneBook() {
         EntityManager entityManager = emf.createEntityManager();
 
-        entityManager.createQuery("SELECT b.genre FROM Book b GROUP BY b.genre HAVING count(b.genre) > 1", WritingGenre.class);
+        entityManager.createQuery("SELECT b.genre " +
+                "FROM Book b " +
+                "GROUP BY b.genre " +
+                "HAVING count(b.genre) > 1", WritingGenre.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<WritingGenre> query = cb.createQuery(WritingGenre.class);
@@ -174,7 +228,9 @@ public class Test {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Book> query1 = 
-                entityManager.createQuery("SELECT b FROM Book b WHERE b.title = :title", Book.class);
+                entityManager.createQuery("SELECT b " +
+                        "FROM Book b " +
+                        "WHERE b.title = :title", Book.class);
 
         query1.setParameter("title", title);
         
@@ -197,7 +253,8 @@ public class Test {
         TypedQuery<Bookstore> query_in = 
                 entityManager.createQuery("SELECT DISTINCT bookstore " +
                         "FROM Bookstore bookstore, IN(bookstore.books) books", 
-                        // note that without alias 'books' in won't work (org.hibernate.hql.internal.ast.QuerySyntaxException)
+                        // note that without alias 'books' in won't work 
+                        // (org.hibernate.hql.internal.ast.QuerySyntaxException)
                         Bookstore.class);
 
         TypedQuery<Bookstore> query_join =
@@ -218,7 +275,8 @@ public class Test {
     public static List<Bookstore> getBookstoresWithMostExpensiveBook() {
         EntityManager entityManager = emf.createEntityManager();
 
-        TypedQuery<Bookstore> query = entityManager.createQuery("SELECT book.bookstore " +
+        TypedQuery<Bookstore> query = entityManager.createQuery("" + 
+                "SELECT book.bookstore " +
                 "FROM Book book " +
                 "WHERE book.price = (SELECT MAX(b.price) FROM Book b)", Bookstore.class);
 
@@ -240,7 +298,8 @@ public class Test {
     public static List<Bookstore> getBookstoresFromNewYork() {
         EntityManager entityManager = emf.createEntityManager();
 
-        TypedQuery<Bookstore> query2 = entityManager.createQuery("SELECT bookstore " +
+        TypedQuery<Bookstore> query2 = entityManager.createQuery("" +
+                "SELECT bookstore " +
                 "FROM Bookstore bookstore " +
                 "WHERE bookstore.address.city = 'New York'", Bookstore.class);
 
@@ -253,7 +312,16 @@ public class Test {
         
         return entityManager.createQuery(cc_query).getResultList();
     }
-    
+
+    /**
+     * the easiest way:
+     * SELECT DISTINCT book.BOOKSTORE_ID
+     * FROM BOOK book
+     * WHERE book.TITLE LIKE :title
+     * 
+     * we show how to reference a FROM expression of the parent query in the FROM clause
+     * of a subquery
+     */
     public static List<Bookstore> getBookstoresThatHaveTitle(String title) {
         EntityManager entityManager = emf.createEntityManager();
         TypedQuery<Bookstore> query2 = entityManager.createQuery(
@@ -279,7 +347,18 @@ public class Test {
         
         return entityManager.createQuery(cc_query).getResultList();
     }
-    
+
+    /**
+     * the easiest way:
+     * SELECT DISTINCT b.BOOKSTORE_ID
+     * FROM AUTHOR author
+     *  JOIN BOOK_AUTHOR bookAuthor ON (bookAuthor.AUTHORS_ID = author.ID)
+     *  JOIN BOOK B on bookAuthor.BOOKS_ID = B.ID
+     * WHERE author.NAME = :author
+     * 
+     * we show how to reference a JOIN expression of the parent query in the FROM clause
+     * of a subquery
+     */
     public static List<Bookstore> getBookstoresThatHaveAtLeastOneBookWrittenBy(String author) {
         EntityManager entityManager = emf.createEntityManager();
         
