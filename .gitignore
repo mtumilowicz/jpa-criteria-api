@@ -2,5 +2,4 @@
 database.mv.db
 database.trace.db
 jpa-criteria-api.iml
-src/test/
 target/
