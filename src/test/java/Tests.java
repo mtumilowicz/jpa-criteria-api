@@ -44,11 +44,11 @@ public class Tests {
                         Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root);
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root);
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -64,12 +64,12 @@ public class Tests {
                         Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root);
-        query.orderBy(cb.asc(query_root.get("title")));
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root);
+        cc_query.orderBy(cb.asc(cc_query_root.get("title")));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -87,12 +87,12 @@ public class Tests {
 
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root);
-        query.where(cb.like(query_root.get("title"), titleLike));
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root);
+        cc_query.where(cb.like(cc_query_root.get("title"), titleLike));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -121,19 +121,19 @@ public class Tests {
 
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Bookstore> query = cb.createQuery(Bookstore.class);
-        Root<Bookstore> query_root = query.from(Bookstore.class);
-        Join<Bookstore, Book> books = query_root.join("books");
-        query.select(query_root);
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
+        Join<Bookstore, Book> books = cc_query_root.join("books");
+        cc_query.select(cc_query_root);
 
-        Subquery<Book> subquery = query.subquery(Book.class);
-        Root<Book> sq_root = subquery.from(Book.class);
-        subquery.select(sq_root);
-        subquery.where(cb.like(sq_root.get("title"), titleLike));
+        Subquery<Book> cc_subquery = cc_query.subquery(Book.class);
+        Root<Book> cc_subquery_root = cc_subquery.from(Book.class);
+        cc_subquery.select(cc_subquery_root);
+        cc_subquery.where(cb.like(cc_subquery_root.get("title"), titleLike));
 
-        query.where(cb.in(books).value(subquery));
+        cc_query.where(cb.in(books).value(cc_subquery));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -152,12 +152,12 @@ public class Tests {
                         .setParameter("prices", prices);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root);
-        query.where(query_root.get("price").in(prices));
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root);
+        cc_query.where(cc_query_root.get("price").in(prices));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -171,11 +171,11 @@ public class Tests {
                 String.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<String> query = cb.createQuery(String.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root.get("title"));
+        CriteriaQuery<String> cc_query = cb.createQuery(String.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root.get("title"));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -192,12 +192,12 @@ public class Tests {
                 .setParameter("value", value);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root);
-        query.where(cb.gt(query_root.get("price"), cb.parameter(Integer.class, "value")));
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root);
+        cc_query.where(cb.gt(cc_query_root.get("price"), cb.parameter(Integer.class, "value")));
 
-        Assert.assertThat(entityManager.createQuery(query)
+        Assert.assertThat(entityManager.createQuery(cc_query)
                         .setParameter("value", value)
                         .getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
@@ -214,12 +214,12 @@ public class Tests {
                 Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root);
-        query.where(cb.gt(cb.size(query_root.get("authors")), 1));
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root);
+        cc_query.where(cb.gt(cb.size(cc_query_root.get("authors")), 1));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -233,11 +233,12 @@ public class Tests {
                 Long.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(cb.count(query_root));
+        CriteriaQuery<Long> cc_query = cb.createQuery(Long.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cb.count(cc_query_root));
 
-        Assert.assertEquals(jpql_query.getSingleResult(), entityManager.createQuery(query).getSingleResult());
+        Assert.assertEquals(jpql_query.getSingleResult(), 
+                entityManager.createQuery(cc_query).getSingleResult());
     }
 
     @Test
@@ -253,18 +254,18 @@ public class Tests {
                         Tuple.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tuple> query = cb.createTupleQuery();
-        Root<Book> query_root = query.from(Book.class);
-        query.select(cb.tuple(
-                query_root.get("genre").alias("genre"),
-                cb.count(query_root).alias("count")));
-        query.groupBy(query_root.get("genre"));
+        CriteriaQuery<Tuple> cc_query = cb.createTupleQuery();
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cb.tuple(
+                cc_query_root.get("genre").alias("genre"),
+                cb.count(cc_query_root).alias("count")));
+        cc_query.groupBy(cc_query_root.get("genre"));
 
         List<Tuple> jpqlResultList = jpql_query.getResultList();
         Set<Object> bookGenre = jpqlResultList.stream().map(x -> x.get("bookGenre")).collect(Collectors.toSet());
         Set<Object> bookCount = jpqlResultList.stream().map(x -> x.get("bookCount")).collect(Collectors.toSet());
 
-        List<Tuple> resultList = entityManager.createQuery(query).getResultList();
+        List<Tuple> resultList = entityManager.createQuery(cc_query).getResultList();
         Set<Object> genre = resultList.stream().map(x -> x.get("genre")).collect(Collectors.toSet());
         Set<Object> count = resultList.stream().map(x -> x.get("count")).collect(Collectors.toSet());
 
@@ -285,13 +286,13 @@ public class Tests {
                 WritingGenre.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<WritingGenre> query = cb.createQuery(WritingGenre.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root.get("genre"));
-        query.groupBy(query_root.get("genre"));
-        query.having(cb.gt(cb.count(query_root.get("genre")), 1));
+        CriteriaQuery<WritingGenre> cc_query = cb.createQuery(WritingGenre.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root.get("genre"));
+        cc_query.groupBy(cc_query_root.get("genre"));
+        cc_query.having(cb.gt(cb.count(cc_query_root.get("genre")), 1));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -308,14 +309,14 @@ public class Tests {
                         .setParameter("title", title);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.select(query_root);
-        query.where(cb.equal(
-                query_root.get("title"),
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.select(cc_query_root);
+        cc_query.where(cb.equal(
+                cc_query_root.get("title"),
                 cb.parameter(String.class, "title")));
 
-        Assert.assertThat(entityManager.createQuery(query)
+        Assert.assertThat(entityManager.createQuery(cc_query)
                         .setParameter("title", title)
                         .getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
@@ -341,15 +342,15 @@ public class Tests {
 
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Bookstore> query = cb.createQuery(Bookstore.class);
-        Root<Bookstore> query_root = query.from(Bookstore.class);
-        query_root.join("books");
-        query.select(query_root).distinct(true);
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
+        cc_query_root.join("books");
+        cc_query.select(cc_query_root).distinct(true);
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query_in.getResultList().toArray()));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query_join.getResultList().toArray()));
     }
 
@@ -364,18 +365,18 @@ public class Tests {
                 Bookstore.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Bookstore> query = cb.createQuery(Bookstore.class);
-        Root<Book> query_root = query.from(Book.class);
-        query_root.join("bookstore");
-        query.select(query_root.get("bookstore"));
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query_root.join("bookstore");
+        cc_query.select(cc_query_root.get("bookstore"));
 
-        Subquery<Integer> subquery = query.subquery(Integer.class);
-        Root<Book> max_subquery_root = subquery.from(Book.class);
-        subquery.select(cb.max(max_subquery_root.get("price")));
+        Subquery<Integer> cc_max_subquery = cc_query.subquery(Integer.class);
+        Root<Book> cc_max_subquery_root = cc_max_subquery.from(Book.class);
+        cc_max_subquery.select(cb.max(cc_max_subquery_root.get("price")));
 
-        query.where(cb.equal(query_root.get("price"), subquery));
+        cc_query.where(cb.equal(cc_query_root.get("price"), cc_max_subquery));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -391,12 +392,12 @@ public class Tests {
 
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Bookstore> query = cb.createQuery(Bookstore.class);
-        Root<Bookstore> query_root = query.from(Bookstore.class);
-        query.select(query_root);
-        query.where(cb.equal(query_root.get("address").get("city"), "New York"));
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
+        cc_query.select(cc_query_root);
+        cc_query.where(cb.equal(cc_query_root.get("address").get("city"), "New York"));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -425,16 +426,16 @@ public class Tests {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
-        Root<Bookstore> query_root = cc_query.from(Bookstore.class);
-        cc_query.select(query_root);
+        Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
+        cc_query.select(cc_query_root);
 
-        Subquery<Book> subquery = cc_query.subquery(Book.class);
-        Root<Bookstore> subquery_root = subquery.correlate(query_root);
-        Join<Bookstore, Book> book = subquery_root.join("books");
-        subquery.select(book);
-        subquery.where(cb.equal(book.get("title"), cb.parameter(String.class, "title")));
+        Subquery<Book> cc_subquery = cc_query.subquery(Book.class);
+        Root<Bookstore> cc_subquery_root = cc_subquery.correlate(cc_query_root);
+        Join<Bookstore, Book> book = cc_subquery_root.join("books");
+        cc_subquery.select(book);
+        cc_subquery.where(cb.equal(book.get("title"), cb.parameter(String.class, "title")));
 
-        cc_query.where(cb.exists(subquery));
+        cc_query.where(cb.exists(cc_subquery));
 
         Assert.assertThat(entityManager.createQuery(cc_query)
                         .setParameter("title", title)
@@ -466,18 +467,18 @@ public class Tests {
                 .setParameter("author", author);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Bookstore> c = cb.createQuery(Bookstore.class);
-        Root<Bookstore> bookstore = c.from(Bookstore.class);
-        Join<Bookstore, Book> books = bookstore.join("books");
-        Subquery<Author> sq = c.subquery(Author.class);
-        Join<Bookstore, Book> sqBooks = sq.correlate(books);
-        Join<Book, Author> authors = sqBooks.join("authors");
-        sq.select(authors);
-        sq.where(cb.equal(authors.get("name"), cb.parameter(String.class, "author")));
-        c.select(bookstore)
-                .where(cb.exists(sq));
+        CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
+        Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
+        Join<Bookstore, Book> books = cc_query_root.join("books");
+        Subquery<Author> cc_subquery = cc_query.subquery(Author.class);
+        Join<Bookstore, Book> cc_subquery_root = cc_subquery.correlate(books);
+        Join<Book, Author> authors = cc_subquery_root.join("authors");
+        cc_subquery.select(authors);
+        cc_subquery.where(cb.equal(authors.get("name"), cb.parameter(String.class, "author")));
+        cc_query.select(cc_query_root)
+                .where(cb.exists(cc_subquery));
 
-        Assert.assertThat(entityManager.createQuery(c)
+        Assert.assertThat(entityManager.createQuery(cc_query)
                         .setParameter("author", author)
                         .getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
@@ -493,17 +494,17 @@ public class Tests {
                 Book.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Book> query = cb.createQuery(Book.class);
-        Root<Book> query_root = query.from(Book.class);
-        query_root.fetch("authors");
-        query.select(query_root);
+        CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query_root.fetch("authors");
+        cc_query.select(cc_query_root);
 
-        List<Book> resultList = entityManager.createQuery(query).getResultList();
+        List<Book> resultList = entityManager.createQuery(cc_query).getResultList();
 
         Preconditions.checkState(resultList.stream().map(Book::getAuthors).allMatch(Hibernate::isInitialized),
                 "Not all book.authors are fully initialized!");
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
@@ -518,12 +519,12 @@ public class Tests {
                 BookstoreCountAVG.class);
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<BookstoreCountAVG> query = cb.createQuery(BookstoreCountAVG.class);
-        Root<Book> query_root = query.from(Book.class);
-        query.multiselect(query_root.get("bookstore"), cb.count(query_root), cb.avg(query_root.get("price")));
-        query.groupBy(query_root.get("bookstore"));
+        CriteriaQuery<BookstoreCountAVG> cc_query = cb.createQuery(BookstoreCountAVG.class);
+        Root<Book> cc_query_root = cc_query.from(Book.class);
+        cc_query.multiselect(cc_query_root.get("bookstore"), cb.count(cc_query_root), cb.avg(cc_query_root.get("price")));
+        cc_query.groupBy(cc_query_root.get("bookstore"));
 
-        Assert.assertThat(entityManager.createQuery(query).getResultList(),
+        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
                 containsInAnyOrder(jpql_query.getResultList().toArray()));
     }
 
