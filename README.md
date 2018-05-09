@@ -10,8 +10,10 @@ by validating additional database table concerning migrations:
 _Reference_: https://flywaydb.org/documentation/
 * **JPA 2.1**  
 _Reference_: [Pro JPA 2 2nd Edition](https://www.amazon.com/Pro-JPA-Experts-Voice-Java/dp/1430249269)  
-_Reference_: [JSR 338: JavaTM Persistence API, Version 2.1](http://download.oracle.com/otn-pub/jcp/persistence-2_1-fr-eval-spec/JavaPersistence.pdf?AuthParam=1525854294_ebba2ec6df9aff2c1b90ef7a62789831)
+_Reference_: [JSR 338: JavaTM Persistence API, Version 2.1](http://download.oracle.com/otn-pub/jcp/persistence-2_1-fr-eval-spec/JavaPersistence.pdf)  
 * **Hibernate** - provider of `JPA 2.1` specification. We don't use
 `EclipseLink` despite the fact that it is `reference implementation` of
 `JPA 2.1` because apart from `JPQL` we want to explore `HQL` as a more
-powerful query language.
+powerful query language.  
+_Reference_: [Java Persistence with Hibernate Second Edition](https://www.amazon.com/exec/obidos/ASIN/1617290459)  
+_Reference_: [Hibernate Interview Questions and Answers](https://www.journaldev.com/3633/hibernate-interview-questions-and-answers)
