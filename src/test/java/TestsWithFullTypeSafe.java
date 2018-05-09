@@ -205,24 +205,6 @@ public class TestsWithFullTypeSafe {
     }
 
     @Test
-    public void countBooks() {
-        EntityManager entityManager = emf.createEntityManager();
-
-        TypedQuery<Long> jpql_query = entityManager.createQuery("" +
-                        "SELECT count(b) " +
-                        "FROM Book b",
-                Long.class);
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> cc_query = cb.createQuery(Long.class);
-        Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cb.count(cc_query_root));
-
-        Assert.assertEquals(jpql_query.getSingleResult(),
-                entityManager.createQuery(cc_query).getSingleResult());
-    }
-
-    @Test
     public void countBooksByGenre() {
         EntityManager entityManager = emf.createEntityManager();
 

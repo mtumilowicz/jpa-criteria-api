@@ -1,4 +1,12 @@
 # jpa-criteria-api
+The main goal of this project is to explore basic query features of 
+`JPA 2.1` specification:  
+* JPQL
+* JPA Criteria API (typesafe with auto-generated
+static metamodels)
+
+As a `JPA` provider we choose `Hibernate` to test some of `HQL`.
+
 ## project structure
 ![](classes-diag.jpg)
 
@@ -44,6 +52,6 @@ All you need to do is:
     <scope>provided</scope>
 </dependency>
 ```
-Mark `target/generated-sources` as a `Generated Sources Root`.
+Mark `target/generated-sources` as a `Generated Sources Root`.  
 In `IntelliJ` just left-click on `target/generated-sources` -> 
 `Mark Directory As` -> `Generated Sources Root`.
