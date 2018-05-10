@@ -63,8 +63,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cc_query_root);
-        cc_query.orderBy(cb.asc(cc_query_root.get("title")));
+        
+        cc_query.select(cc_query_root)
+                .orderBy(cb.asc(cc_query_root.get("title")));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .isEqualTo(jpql_query.getResultList());
@@ -86,8 +87,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cc_query_root);
-        cc_query.where(cb.like(cc_query_root.get("title"), titleLike));
+        
+        cc_query.select(cc_query_root)
+                .where(cb.like(cc_query_root.get("title"), titleLike));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
@@ -121,14 +123,14 @@ class Tests {
         CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
         Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
         Join<Bookstore, Book> books = cc_query_root.join("books");
-        cc_query.select(cc_query_root);
 
         Subquery<Book> cc_subquery = cc_query.subquery(Book.class);
         Root<Book> cc_subquery_root = cc_subquery.from(Book.class);
-        cc_subquery.select(cc_subquery_root);
-        cc_subquery.where(cb.like(cc_subquery_root.get("title"), titleLike));
+        cc_subquery.select(cc_subquery_root)
+                .where(cb.like(cc_subquery_root.get("title"), titleLike));
 
-        cc_query.where(cb.in(books).value(cc_subquery));
+        cc_query.select(cc_query_root)
+                .where(cb.in(books).value(cc_subquery));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
@@ -151,8 +153,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cc_query_root);
-        cc_query.where(cc_query_root.get("price").in(prices));
+        
+        cc_query.select(cc_query_root)
+                .where(cc_query_root.get("price").in(prices));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
@@ -191,8 +194,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cc_query_root);
-        cc_query.where(cb.gt(cc_query_root.get("price"), cb.parameter(Integer.class, "value")));
+        
+        cc_query.select(cc_query_root)
+                .where(cb.gt(cc_query_root.get("price"), cb.parameter(Integer.class, "value")));
 
         assertThat(entityManager.createQuery(cc_query)
                 .setParameter("value", value)
@@ -213,8 +217,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cc_query_root);
-        cc_query.where(cb.gt(cb.size(cc_query_root.get("authors")), 1));
+        
+        cc_query.select(cc_query_root)
+                .where(cb.gt(cb.size(cc_query_root.get("authors")), 1));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
@@ -252,10 +257,11 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> cc_query = cb.createTupleQuery();
         Root<Book> cc_query_root = cc_query.from(Book.class);
+        
         cc_query.select(cb.tuple(
-                cc_query_root.get("genre").alias("genre"),
-                cb.count(cc_query_root).alias("count")));
-        cc_query.groupBy(cc_query_root.get("genre"));
+                            cc_query_root.get("genre").alias("genre"),
+                            cb.count(cc_query_root).alias("count")))
+                .groupBy(cc_query_root.get("genre"));
 
         // TO-DO comparison
     }
@@ -274,14 +280,16 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<WritingGenre> cc_query = cb.createQuery(WritingGenre.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cc_query_root.get("genre"));
-        cc_query.groupBy(cc_query_root.get("genre"));
-        cc_query.having(cb.gt(cb.count(cc_query_root.get("genre")), 1));
+        
+        cc_query.select(cc_query_root.get("genre"))
+                .groupBy(cc_query_root.get("genre"))
+                .having(cb.gt(cb.count(cc_query_root.get("genre")), 1));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
+    @Test
     void getBooksByTitle() {
         String title = "Harry Potter";
         EntityManager entityManager = emf.createEntityManager();
@@ -297,10 +305,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Book> cc_query = cb.createQuery(Book.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.select(cc_query_root);
-        cc_query.where(cb.equal(
-                cc_query_root.get("title"),
-                cb.parameter(String.class, "title")));
+        
+        cc_query.select(cc_query_root)
+                .where(cb.equal(cc_query_root.get("title"), cb.parameter(String.class, "title")));
 
         assertThat(entityManager.createQuery(cc_query)
                 .setParameter("title", title)
@@ -354,13 +361,13 @@ class Tests {
         CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
         cc_query_root.join("bookstore");
-        cc_query.select(cc_query_root.get("bookstore"));
 
         Subquery<Integer> cc_max_subquery = cc_query.subquery(Integer.class);
         Root<Book> cc_max_subquery_root = cc_max_subquery.from(Book.class);
         cc_max_subquery.select(cb.max(cc_max_subquery_root.get("price")));
 
-        cc_query.where(cb.equal(cc_query_root.get("price"), cc_max_subquery));
+        cc_query.select(cc_query_root.get("bookstore"))
+                .where(cb.equal(cc_query_root.get("price"), cc_max_subquery));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
@@ -380,8 +387,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
         Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
-        cc_query.select(cc_query_root);
-        cc_query.where(cb.equal(cc_query_root.get("address").get("city"), "New York"));
+        
+        cc_query.select(cc_query_root)
+                .where(cb.equal(cc_query_root.get("address").get("city"), "New York"));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
@@ -413,15 +421,15 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
         Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
-        cc_query.select(cc_query_root);
 
         Subquery<Book> cc_subquery = cc_query.subquery(Book.class);
         Root<Bookstore> cc_subquery_root = cc_subquery.correlate(cc_query_root);
         Join<Bookstore, Book> book = cc_subquery_root.join("books");
-        cc_subquery.select(book);
-        cc_subquery.where(cb.equal(book.get("title"), cb.parameter(String.class, "title")));
+        cc_subquery.select(book)
+                .where(cb.equal(book.get("title"), cb.parameter(String.class, "title")));
 
-        cc_query.where(cb.exists(cc_subquery));
+        cc_query.select(cc_query_root)
+                .where(cb.exists(cc_subquery));
 
         assertThat(entityManager.createQuery(cc_query)
                 .setParameter("title", title)
@@ -460,8 +468,8 @@ class Tests {
         Subquery<Author> cc_subquery = cc_query.subquery(Author.class);
         Join<Bookstore, Book> cc_subquery_root = cc_subquery.correlate(books);
         Join<Book, Author> authors = cc_subquery_root.join("authors");
-        cc_subquery.select(authors);
-        cc_subquery.where(cb.equal(authors.get("name"), cb.parameter(String.class, "author")));
+        cc_subquery.select(authors)
+                .where(cb.equal(authors.get("name"), cb.parameter(String.class, "author")));
         
         cc_query.select(cc_query_root)
                 .where(cb.exists(cc_subquery));
@@ -509,8 +517,11 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<BookstoreCountAVG> cc_query = cb.createQuery(BookstoreCountAVG.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        cc_query.multiselect(cc_query_root.get("bookstore"), cb.count(cc_query_root), cb.avg(cc_query_root.get("price")));
-        cc_query.groupBy(cc_query_root.get("bookstore"));
+        
+        cc_query.multiselect(cc_query_root.get("bookstore"), 
+                                cb.count(cc_query_root), 
+                                cb.avg(cc_query_root.get("price")))
+                .groupBy(cc_query_root.get("bookstore"));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
