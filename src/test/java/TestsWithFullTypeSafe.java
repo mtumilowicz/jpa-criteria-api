@@ -388,9 +388,8 @@ class TestsWithFullTypeSafe {
         Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
 
         Subquery<Book> cc_subquery = cc_query.subquery(Book.class);
-        Root<Bookstore> cc_subquery_root = cc_subquery.correlate(cc_query_root);
+        Root<Bookstore> cc_subquery_root = cc_subquery.correlate(cc_query_root); // reference parent's query 'FROM' expression in subquery 'FROM'
         Join<Bookstore, Book> book = cc_subquery_root.join(Bookstore_.books);
-        
         cc_subquery.select(book)
                 .where(cb.equal(book.get(Book_.title), cb.parameter(String.class, "title")));
 
@@ -432,7 +431,7 @@ class TestsWithFullTypeSafe {
         Join<Bookstore, Book> books = cc_query_root.join(Bookstore_.books);
         
         Subquery<Author> cc_subquery = cc_query.subquery(Author.class);
-        Join<Bookstore, Book> cc_subquery_root = cc_subquery.correlate(books);
+        Join<Bookstore, Book> cc_subquery_root = cc_subquery.correlate(books); // reference parent's query JOIN expression in subquery 'FROM'
         Join<Book, Author> authors = cc_subquery_root.join(Book_.authors);
         cc_subquery.select(authors)
                 .where(cb.equal(authors.get(Author_.name), cb.parameter(String.class, "author")));
@@ -483,10 +482,11 @@ class TestsWithFullTypeSafe {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<BookstoreCountAVG> cc_query = cb.createQuery(BookstoreCountAVG.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        
+
+        // BookstoreCountAVG must have exact constructor as multiselect clause
         cc_query.multiselect(cc_query_root.get(Book_.bookstore), 
-                                cb.count(cc_query_root), 
-                                cb.avg(cc_query_root.get(Book_.price)))
+                            cb.count(cc_query_root), 
+                            cb.avg(cc_query_root.get(Book_.price)))
                 .groupBy(cc_query_root.get(Book_.bookstore));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())

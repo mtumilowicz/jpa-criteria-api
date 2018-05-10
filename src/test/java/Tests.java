@@ -423,7 +423,7 @@ class Tests {
         Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
 
         Subquery<Book> cc_subquery = cc_query.subquery(Book.class);
-        Root<Bookstore> cc_subquery_root = cc_subquery.correlate(cc_query_root);
+        Root<Bookstore> cc_subquery_root = cc_subquery.correlate(cc_query_root); // reference parent's query 'FROM' expression in subquery 'FROM'
         Join<Bookstore, Book> book = cc_subquery_root.join("books");
         cc_subquery.select(book)
                 .where(cb.equal(book.get("title"), cb.parameter(String.class, "title")));
@@ -466,7 +466,7 @@ class Tests {
         Join<Bookstore, Book> books = cc_query_root.join("books");
         
         Subquery<Author> cc_subquery = cc_query.subquery(Author.class);
-        Join<Bookstore, Book> cc_subquery_root = cc_subquery.correlate(books);
+        Join<Bookstore, Book> cc_subquery_root = cc_subquery.correlate(books); // reference parent's query JOIN expression in subquery 'FROM'
         Join<Book, Author> authors = cc_subquery_root.join("authors");
         cc_subquery.select(authors)
                 .where(cb.equal(authors.get("name"), cb.parameter(String.class, "author")));
@@ -517,10 +517,9 @@ class Tests {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<BookstoreCountAVG> cc_query = cb.createQuery(BookstoreCountAVG.class);
         Root<Book> cc_query_root = cc_query.from(Book.class);
-        
-        cc_query.multiselect(cc_query_root.get("bookstore"), 
-                                cb.count(cc_query_root), 
-                                cb.avg(cc_query_root.get("price")))
+
+        // BookstoreCountAVG must have exact constructor as multiselect clause
+        cc_query.multiselect(cc_query_root.get("bookstore"), cb.count(cc_query_root), cb.avg(cc_query_root.get("price")))
                 .groupBy(cc_query_root.get("bookstore"));
 
         assertThat(entityManager.createQuery(cc_query).getResultList())
