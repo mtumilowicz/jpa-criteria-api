@@ -421,11 +421,13 @@ class TestsWithFullTypeSafe {
         CriteriaQuery<Bookstore> cc_query = cb.createQuery(Bookstore.class);
         Root<Bookstore> cc_query_root = cc_query.from(Bookstore.class);
         Join<Bookstore, Book> books = cc_query_root.join(Bookstore_.books);
+        
         Subquery<Author> cc_subquery = cc_query.subquery(Author.class);
         Join<Bookstore, Book> cc_subquery_root = cc_subquery.correlate(books);
         Join<Book, Author> authors = cc_subquery_root.join(Book_.authors);
         cc_subquery.select(authors);
         cc_subquery.where(cb.equal(authors.get(Author_.name), cb.parameter(String.class, "author")));
+        
         cc_query.select(cc_query_root)
                 .where(cb.exists(cc_subquery));
 
