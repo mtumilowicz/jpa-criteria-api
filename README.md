@@ -70,9 +70,10 @@ From `TestsWithFullTypeSafe`:
 cc_query.orderBy(cb.asc(cc_query_root.get(Book_.title)));
 ```
 
-All methods are quite simple & straightforward use of `Criteria API`. 
-Quite complex & the most interesting are:
-* `getBookstoresWithMostExpensiveBook()` - we show how to use subqueries
+All methods are quite simple & straightforward use of `Criteria API`.   
+Quite complex & the most interesting are:  
+
+**getBookstoresWithMostExpensiveBook()** - we show how to use subqueries
 ```
 SELECT book.bookstore
 FROM Book book
@@ -87,7 +88,8 @@ cc_max_subquery.select(cb.max(cc_max_subquery_root.get("price")));
 
 cc_query.where(cb.equal(cc_query_root.get("price"), cc_max_subquery)); // connect subquery with main query
 ```
-* `getBookstoresThatHaveTitle()` - we show how to reference a `FROM` 
+
+**getBookstoresThatHaveTitle()** - we show how to reference a `FROM` 
 expression of the parent query in the `FROM` clause of a subquery
 ```
 SELECT bookstore
@@ -109,7 +111,7 @@ cc_subquery.where(cb.equal(book.get("title"), cb.parameter(String.class, "title"
 cc_query.where(cb.exists(cc_subquery)); // connect subquery with main query
 ```
  
-* `getBookstoresThatHaveAtLeastOneBookWrittenBy()` - we show how to 
+**getBookstoresThatHaveAtLeastOneBookWrittenBy()** - we show how to 
 reference a `JOIN` expression of the parent query in the `FROM` clause
 of a subquery
 ```
