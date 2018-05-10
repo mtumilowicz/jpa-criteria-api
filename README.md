@@ -1,8 +1,8 @@
 # jpa-criteria-api
 The main goal of this project is to explore basic query features of 
 `JPA 2.1` specification:  
-* JPQL
-* JPA Criteria API (typesafe with auto-generated
+* **JPQL**
+* **JPA Criteria API** (typesafe with auto-generated
 static metamodels)
 
 As a `JPA` provider we choose `Hibernate` to test some of `HQL`.
@@ -31,7 +31,7 @@ convinient methods to comparing lists regardless order).
 ## project description  
 The main idea is to expore `JPA Criteria API` by writing a querys in 
 `JPQL` or `HQL`, then try to re-write them in `JPA Criteria API` & check 
-if result sets are the same.
+if result-sets are the same.  
 Comparing equality of result sets with `JUnit` & `hamcrest`:
 ```
 import static org.hamcrest.Matchers.containsInAnyOrder;
