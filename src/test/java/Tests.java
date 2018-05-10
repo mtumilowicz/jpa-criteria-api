@@ -2,28 +2,25 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.flywaydb.core.Flyway;
 import org.hibernate.Hibernate;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by mtumilowicz on 2018-05-02.
  */
-public class Tests {
+class Tests {
 
     private static EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("NewPersistenceUnit");
 
-    @BeforeClass
-    public static void prepareForTests() {
+    @BeforeAll
+    static void prepareForTests() {
         prepareDatabaseForTests();
     }
 
@@ -34,7 +31,7 @@ public class Tests {
     }
 
     @Test
-    public void getAllBooks() {
+    void getAllBooks() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Book> jpql_query =
@@ -48,12 +45,12 @@ public class Tests {
         Root<Book> cc_query_root = cc_query.from(Book.class);
         cc_query.select(cc_query_root);
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getAllBooksOrderByTitle() {
+    void getAllBooksOrderByTitle() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Book> jpql_query =
@@ -69,12 +66,12 @@ public class Tests {
         cc_query.select(cc_query_root);
         cc_query.orderBy(cb.asc(cc_query_root.get("title")));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .isEqualTo(jpql_query.getResultList());
     }
 
     @Test
-    public void getBooksByTitleLike() {
+    void getBooksByTitleLike() {
         String titleLike = "Lord%";
         EntityManager entityManager = emf.createEntityManager();
 
@@ -92,8 +89,8 @@ public class Tests {
         cc_query.select(cc_query_root);
         cc_query.where(cb.like(cc_query_root.get("title"), titleLike));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     /**
@@ -105,7 +102,7 @@ public class Tests {
      * example below shows how to use subqueries in 'IN' clause
      */
     @Test
-    public void getBookstoresWithTitlesLike() {
+    void getBookstoresWithTitlesLike() {
         String titleLike = "Lord%";
         EntityManager entityManager = emf.createEntityManager();
 
@@ -133,12 +130,12 @@ public class Tests {
 
         cc_query.where(cb.in(books).value(cc_subquery));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getBooksWithPriceIn() {
+    void getBooksWithPriceIn() {
         ImmutableSet<Integer> prices = ImmutableSet.of(10, 15, 20);
 
         EntityManager entityManager = emf.createEntityManager();
@@ -157,12 +154,12 @@ public class Tests {
         cc_query.select(cc_query_root);
         cc_query.where(cc_query_root.get("price").in(prices));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getAllBookTitles() {
+    void getAllBookTitles() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<String> jpql_query = entityManager.createQuery("" +
@@ -175,12 +172,12 @@ public class Tests {
         Root<Book> cc_query_root = cc_query.from(Book.class);
         cc_query.select(cc_query_root.get("title"));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getBooksWithPriceMoreThan() {
+    void getBooksWithPriceMoreThan() {
         int value = 10;
         EntityManager entityManager = emf.createEntityManager();
 
@@ -197,14 +194,14 @@ public class Tests {
         cc_query.select(cc_query_root);
         cc_query.where(cb.gt(cc_query_root.get("price"), cb.parameter(Integer.class, "value")));
 
-        Assert.assertThat(entityManager.createQuery(cc_query)
-                        .setParameter("value", value)
-                        .getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query)
+                .setParameter("value", value)
+                .getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getBooksWithMoreThanOneAuthors() {
+    void getBooksWithMoreThanOneAuthors() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Book> jpql_query = entityManager.createQuery("" +
@@ -219,12 +216,12 @@ public class Tests {
         cc_query.select(cc_query_root);
         cc_query.where(cb.gt(cb.size(cc_query_root.get("authors")), 1));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void countBooks() {
+    void countBooks() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Long> jpql_query = entityManager.createQuery("" +
@@ -237,12 +234,11 @@ public class Tests {
         Root<Book> cc_query_root = cc_query.from(Book.class);
         cc_query.select(cb.count(cc_query_root));
 
-        Assert.assertEquals(jpql_query.getSingleResult(), 
-                entityManager.createQuery(cc_query).getSingleResult());
+        assertThat(jpql_query.getSingleResult()).isEqualTo(entityManager.createQuery(cc_query).getSingleResult());
     }
 
     @Test
-    public void countBooksByGenre() {
+    void countBooksByGenre() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Tuple> jpql_query =
@@ -261,21 +257,11 @@ public class Tests {
                 cb.count(cc_query_root).alias("count")));
         cc_query.groupBy(cc_query_root.get("genre"));
 
-        List<Tuple> jpqlResultList = jpql_query.getResultList();
-        Set<Object> bookGenre = jpqlResultList.stream().map(x -> x.get("bookGenre")).collect(Collectors.toSet());
-        Set<Object> bookCount = jpqlResultList.stream().map(x -> x.get("bookCount")).collect(Collectors.toSet());
-
-        List<Tuple> resultList = entityManager.createQuery(cc_query).getResultList();
-        Set<Object> genre = resultList.stream().map(x -> x.get("genre")).collect(Collectors.toSet());
-        Set<Object> count = resultList.stream().map(x -> x.get("count")).collect(Collectors.toSet());
-
-
-        Assert.assertEquals(bookGenre, genre);
-        Assert.assertEquals(bookCount, count);
+        // TO-DO comparison
     }
 
     @Test
-    public void getGenresThatHaveMoreThanOneBook() {
+    void getGenresThatHaveMoreThanOneBook() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<WritingGenre> jpql_query = entityManager.createQuery("" +
@@ -292,11 +278,11 @@ public class Tests {
         cc_query.groupBy(cc_query_root.get("genre"));
         cc_query.having(cb.gt(cb.count(cc_query_root.get("genre")), 1));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
-    public void getBooksByTitle() {
+    void getBooksByTitle() {
         String title = "Harry Potter";
         EntityManager entityManager = emf.createEntityManager();
 
@@ -316,14 +302,14 @@ public class Tests {
                 cc_query_root.get("title"),
                 cb.parameter(String.class, "title")));
 
-        Assert.assertThat(entityManager.createQuery(cc_query)
-                        .setParameter("title", title)
-                        .getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query)
+                .setParameter("title", title)
+                .getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getBookstoresWithAtLeastOneBook() {
+    void getBookstoresWithAtLeastOneBook() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Bookstore> jpql_query_in =
@@ -347,15 +333,15 @@ public class Tests {
         cc_query_root.join("books");
         cc_query.select(cc_query_root).distinct(true);
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query_in.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query_in.getResultList());
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query_join.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query_join.getResultList());
     }
 
     @Test
-    public void getBookstoresWithMostExpensiveBook() {
+    void getBookstoresWithMostExpensiveBook() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery("" +
@@ -376,12 +362,12 @@ public class Tests {
 
         cc_query.where(cb.equal(cc_query_root.get("price"), cc_max_subquery));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getBookstoresFromNewYork() {
+    void getBookstoresFromNewYork() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery("" +
@@ -397,8 +383,8 @@ public class Tests {
         cc_query.select(cc_query_root);
         cc_query.where(cb.equal(cc_query_root.get("address").get("city"), "New York"));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     /**
@@ -411,7 +397,7 @@ public class Tests {
      * of a subquery
      */
     @Test
-    public void getBookstoresThatHaveTitle() {
+    void getBookstoresThatHaveTitle() {
         String title = "Harry Potter";
         EntityManager entityManager = emf.createEntityManager();
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery("" +
@@ -437,10 +423,10 @@ public class Tests {
 
         cc_query.where(cb.exists(cc_subquery));
 
-        Assert.assertThat(entityManager.createQuery(cc_query)
-                        .setParameter("title", title)
-                        .getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query)
+                .setParameter("title", title)
+                .getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     /**
@@ -455,7 +441,7 @@ public class Tests {
      * of a subquery
      */
     @Test
-    public void getBookstoresThatHaveAtLeastOneBookWrittenBy() {
+    void getBookstoresThatHaveAtLeastOneBookWrittenBy() {
         String author = "Joshua Bloch";
         EntityManager entityManager = emf.createEntityManager();
 
@@ -478,14 +464,14 @@ public class Tests {
         cc_query.select(cc_query_root)
                 .where(cb.exists(cc_subquery));
 
-        Assert.assertThat(entityManager.createQuery(cc_query)
-                        .setParameter("author", author)
-                        .getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query)
+                .setParameter("author", author)
+                .getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getBooksWithFetchedAuthors() {
+    void getBooksWithFetchedAuthors() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Book> jpql_query = entityManager.createQuery("" +
@@ -504,12 +490,12 @@ public class Tests {
         Preconditions.checkState(resultList.stream().map(Book::getAuthors).allMatch(Hibernate::isInitialized),
                 "Not all book.authors are fully initialized!");
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
     @Test
-    public void getBookstoresWithCountBooksAndPriceAverage() {
+    void getBookstoresWithCountBooksAndPriceAverage() {
         EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<BookstoreCountAVG> jpql_query = entityManager.createQuery("" +
@@ -524,8 +510,8 @@ public class Tests {
         cc_query.multiselect(cc_query_root.get("bookstore"), cb.count(cc_query_root), cb.avg(cc_query_root.get("price")));
         cc_query.groupBy(cc_query_root.get("bookstore"));
 
-        Assert.assertThat(entityManager.createQuery(cc_query).getResultList(),
-                containsInAnyOrder(jpql_query.getResultList().toArray()));
+        assertThat(entityManager.createQuery(cc_query).getResultList())
+                .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
 
 }
