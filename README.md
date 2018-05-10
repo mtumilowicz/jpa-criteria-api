@@ -71,7 +71,7 @@ cc_query.orderBy(cb.asc(cc_query_root.get(Book_.title)));
 ```
 
 All methods are quite simple & straightforward use of `Criteria API`.   
-Quite complex & the most interesting are:  
+The most interesting are:  
 
 **getBookstoresWithMostExpensiveBook()** - we show how to use subqueries
 ```
