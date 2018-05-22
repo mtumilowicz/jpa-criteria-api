@@ -2,6 +2,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.flywaydb.core.Flyway;
 import org.hibernate.Hibernate;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -16,12 +17,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class Tests {
 
-    private static EntityManagerFactory emf =
+    private static final EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("NewPersistenceUnit");
+    private static final EntityManager entityManager = emf.createEntityManager();
 
     @BeforeAll
     static void prepareForTests() {
         prepareDatabaseForTests();
+    }
+    
+    @AfterAll
+    static void closeEntityManager() {
+        entityManager.close();
     }
 
     private static void prepareDatabaseForTests() {
@@ -32,8 +39,6 @@ class Tests {
 
     @Test
     void getAllBooks() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Book> jpql_query =
                 entityManager.createQuery("" +
                                 "SELECT b " +
@@ -51,8 +56,6 @@ class Tests {
 
     @Test
     void getAllBooksOrderByTitle() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Book> jpql_query =
                 entityManager.createQuery("" +
                                 "SELECT b " +
@@ -74,8 +77,7 @@ class Tests {
     @Test
     void getBooksByTitleLike() {
         String titleLike = "Lord%";
-        EntityManager entityManager = emf.createEntityManager();
-
+        
         TypedQuery<Book> jpql_query = entityManager.createQuery("" +
                         "SELECT b " +
                         "FROM Book b " +
@@ -106,8 +108,7 @@ class Tests {
     @Test
     void getBookstoresWithTitlesLike() {
         String titleLike = "Lord%";
-        EntityManager entityManager = emf.createEntityManager();
-
+        
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery("" +
                         "SELECT bookstore " +
                         "FROM Bookstore bookstore JOIN bookstore.books books " +
@@ -139,9 +140,7 @@ class Tests {
     @Test
     void getBooksWithPriceIn() {
         ImmutableSet<Integer> prices = ImmutableSet.of(10, 15, 20);
-
-        EntityManager entityManager = emf.createEntityManager();
-
+        
         TypedQuery<Book> jpql_query =
                 entityManager.createQuery("" +
                                 "SELECT b " +
@@ -163,8 +162,6 @@ class Tests {
 
     @Test
     void getAllBookTitles() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<String> jpql_query = entityManager.createQuery("" +
                         "SELECT b.title " +
                         "FROM Book b",
@@ -182,8 +179,7 @@ class Tests {
     @Test
     void getBooksWithPriceMoreThan() {
         int value = 10;
-        EntityManager entityManager = emf.createEntityManager();
-
+        
         TypedQuery<Book> jpql_query = entityManager.createQuery("" +
                         "SELECT b " +
                         "FROM Book b " +
@@ -206,8 +202,6 @@ class Tests {
 
     @Test
     void getBooksWithMoreThanOneAuthors() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Book> jpql_query = entityManager.createQuery("" +
                         "SELECT b " +
                         "FROM Book b " +
@@ -227,8 +221,6 @@ class Tests {
 
     @Test
     void countBooks() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Long> jpql_query = entityManager.createQuery("" +
                         "SELECT count(b) " +
                         "FROM Book b",
@@ -244,8 +236,6 @@ class Tests {
 
     @Test
     void countBooksByGenre() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Tuple> jpql_query =
                 entityManager.createQuery("" +
                                 "SELECT " +
@@ -268,8 +258,6 @@ class Tests {
 
     @Test
     void getGenresThatHaveMoreThanOneBook() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<WritingGenre> jpql_query = entityManager.createQuery("" +
                         "SELECT b.genre " +
                         "FROM Book b " +
@@ -292,8 +280,7 @@ class Tests {
     @Test
     void getBooksByTitle() {
         String title = "Harry Potter";
-        EntityManager entityManager = emf.createEntityManager();
-
+        
         TypedQuery<Book> jpql_query =
                 entityManager.createQuery("" +
                                 "SELECT b " +
@@ -317,8 +304,6 @@ class Tests {
 
     @Test
     void getBookstoresWithAtLeastOneBook() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Bookstore> jpql_query_in =
                 entityManager.createQuery("" +
                                 "SELECT DISTINCT bookstore " +
@@ -349,8 +334,6 @@ class Tests {
 
     @Test
     void getBookstoresWithMostExpensiveBook() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery("" +
                         "SELECT book.bookstore " +
                         "FROM Book book " +
@@ -375,8 +358,6 @@ class Tests {
 
     @Test
     void getBookstoresFromNewYork() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery("" +
                         "SELECT bookstore " +
                         "FROM Bookstore bookstore " +
@@ -407,7 +388,7 @@ class Tests {
     @Test
     void getBookstoresThatHaveTitle() {
         String title = "Harry Potter";
-        EntityManager entityManager = emf.createEntityManager();
+        
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery("" +
                         "SELECT bookstore " +
                         "FROM Bookstore bookstore " +
@@ -451,7 +432,6 @@ class Tests {
     @Test
     void getBookstoresThatHaveAtLeastOneBookWrittenBy() {
         String author = "Joshua Bloch";
-        EntityManager entityManager = emf.createEntityManager();
 
         TypedQuery<Bookstore> jpql_query = entityManager.createQuery(
                 "SELECT bookstore " +
@@ -482,8 +462,6 @@ class Tests {
 
     @Test
     void getBooksWithFetchedAuthors() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<Book> jpql_query = entityManager.createQuery("" +
                         "SELECT b " +
                         "FROM Book b JOIN FETCH b.authors",
@@ -506,8 +484,6 @@ class Tests {
 
     @Test
     void getBookstoresWithCountBooksAndPriceAverage() {
-        EntityManager entityManager = emf.createEntityManager();
-
         TypedQuery<BookstoreCountAVG> jpql_query = entityManager.createQuery("" +
                         "SELECT new BookstoreCountAVG(b.bookstore, count(b), avg(b.price)) " +
                         "FROM Book b " +
