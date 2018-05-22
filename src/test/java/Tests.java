@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -239,7 +240,7 @@ class Tests {
         TypedQuery<Tuple> jpql_query =
                 entityManager.createQuery("" +
                                 "SELECT " +
-                                "b.genre AS bookGenre, count(b) AS bookCount " +
+                                "b.genre AS genre, count(b) AS count " +
                                 "FROM Book b " +
                                 "GROUP BY b.genre",
                         Tuple.class);
@@ -253,7 +254,17 @@ class Tests {
                             cb.count(cc_query_root).alias("count")))
                 .groupBy(cc_query_root.get("genre"));
 
-        // TO-DO comparison
+        List<CountBooksByGenreTupleWrapper> jpql_query_results = jpql_query.getResultList()
+                .stream()
+                .map(CountBooksByGenreTupleWrapper::new)
+                .collect(Collectors.toList());
+
+        List<CountBooksByGenreTupleWrapper> cc_query_results = entityManager.createQuery(cc_query).getResultList()
+                .stream()
+                .map(CountBooksByGenreTupleWrapper::new)
+                .collect(Collectors.toList());
+
+        assertThat(cc_query_results).containsExactlyInAnyOrderElementsOf(jpql_query_results);
     }
 
     @Test
@@ -501,5 +512,4 @@ class Tests {
         assertThat(entityManager.createQuery(cc_query).getResultList())
                 .containsExactlyInAnyOrderElementsOf(jpql_query.getResultList());
     }
-
 }
