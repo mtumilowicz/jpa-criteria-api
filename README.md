@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/mtumilowicz/jpa-criteria-api.svg?branch=master)](https://travis-ci.com/mtumilowicz/jpa-criteria-api)
+
 # jpa-criteria-api
 The main goal of this project is to explore basic query features of 
 `JPA 2.1` specification:  
